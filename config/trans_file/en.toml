@@ -1,3 +1,10 @@
 [hello] 
   other = "Hello From Service API"
 
+[unknownroute]
+  other = "{{.Method}} cho {{.Route}} is not supported"
+
+[internal] 
+  other = "please try again"
+
+

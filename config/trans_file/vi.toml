@@ -1,2 +1,10 @@
 [hello] 
   other = "Xin Chao"
+
+[unknownroute]
+  other = "{{.Method}} cho {{.Route}} khong duoc ho tro"
+
+[internal] 
+  other = "Xin vui long thu lai sau"
+
+

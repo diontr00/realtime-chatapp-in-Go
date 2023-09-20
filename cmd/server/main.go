@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/diontr00/distributedkv/api/route"
-	"github.com/diontr00/distributedkv/config"
+	"{{{template}}}/api/route"
+	"{{{template}}}/config"
 )
 
 var (

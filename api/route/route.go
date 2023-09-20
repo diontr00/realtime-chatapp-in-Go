@@ -3,12 +3,12 @@ package route
 import (
 	"time"
 
-	"github.com/diontr00/distributedkv/api/controller"
-	"github.com/diontr00/distributedkv/api/middleware"
-	"github.com/diontr00/distributedkv/config"
-	"github.com/diontr00/distributedkv/translator"
 	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
+	"{{{template}}}/api/controller"
+	"{{{template}}}/api/middleware"
+	"{{{template}}}/config"
+	"{{{template}}}/translator"
 )
 
 type RouteConfig struct {

@@ -8,9 +8,9 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/diontr00/distributedkv/translator"
 	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
+	"{{{template}}}/translator"
 )
 
 type Applications struct {

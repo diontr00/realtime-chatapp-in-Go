@@ -3,6 +3,9 @@ build:   ## Build
 
 run:  build ## Run 
 	./bin/main
-	]
+
+template: 
+	ruby ./initscript.rb $(NAME) 
+
 help: 
 	@bash ./script/print_help.sh

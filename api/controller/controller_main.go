@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"github.com/diontr00/distributedkv/translator"
 	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
+	"{{{template}}}/translator"
 )
 
 type Maincontroller struct {

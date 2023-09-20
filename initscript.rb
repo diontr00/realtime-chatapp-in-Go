@@ -1,0 +1,46 @@
+#!/usr/bin/env ruby
+
+# Check if a template name argument is provided
+if ARGV.length != 1
+  puts "Usage: #{$PROGRAM_NAME} <template_name>"
+  exit 1
+end
+
+# Capture the template name from the command-line argument
+template_name = ARGV[0]
+
+# Function to replace template in a file
+def replace_template(file, template_name)
+  # Read the file content
+  content = File.read(file)
+
+  # Replace all occurrences of github.com/diontr00/kvstore with the provided template name
+  updated_content = content.gsub('github.com/diontr00/kvstore', template_name)
+
+  # Write the updated content back to the file
+  File.open(file, 'w') { |f| f.write(updated_content) }
+end
+
+# Recursively find all files in the current directory and its subdirectories
+def find_and_replace_files(directory, template_name)
+  Dir.foreach(directory) do |item|
+    next if item == '.' || item == '..'
+
+    path = File.join(directory, item)
+
+    if File.file?(path)
+      replace_template(path, template_name)
+    elsif File.directory?(path)
+      find_and_replace_files(path, template_name)
+    end
+  end
+end
+
+# Start the search and replacement from the current directory
+find_and_replace_files('.', template_name)
+
+puts "Template replacement complete."
+
+system("go mod init #{template_name}")
+system("go mod tidy")
+
