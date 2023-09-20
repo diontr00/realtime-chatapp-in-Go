@@ -14,17 +14,17 @@ def replace_template(file, template_name)
   # Read the file content
   content = File.read(file)
 
-  # Replace all occurrences of github.com/diontr00/kvstore with the provided template name
-  updated_content = content.gsub('github.com/diontr00/kvstore', template_name)
+  # Replace all occurrences of {{{template}}} with the provided template name
+  updated_content = content.gsub('{{{template}}}', template_name)
 
   # Write the updated content back to the file
   File.open(file, 'w') { |f| f.write(updated_content) }
 end
 
-# Recursively find all files in the current directory and its subdirectories
+# Recursively find all files in the current directory and its subdirectories, excluding .git
 def find_and_replace_files(directory, template_name)
   Dir.foreach(directory) do |item|
-    next if item == '.' || item == '..'
+    next if item == '.' || item == '..' || item == '.git'
 
     path = File.join(directory, item)
 
@@ -40,6 +40,11 @@ end
 find_and_replace_files('.', template_name)
 
 puts "Template replacement complete."
+
+
+
+
+
 
 system("go mod init #{template_name}")
 system("go mod tidy")
