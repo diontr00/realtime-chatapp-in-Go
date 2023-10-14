@@ -57,13 +57,12 @@ func NewUtTrans(fs embed.FS, transFolderName string) (*UTtrans, error) {
 }
 
 func (u *UTtrans) TranslateValidationError(
-	c *fiber.Ctx,
+	locale string,
 	fe validator.FieldError,
 	plurals interface{},
 ) string {
-	locale := c.Locals("locale")
 
-	localizer := i18n.NewLocalizer(u.bundle, locale.(string))
+	localizer := i18n.NewLocalizer(u.bundle, locale)
 
 	message, err := localizer.Localize(&i18n.LocalizeConfig{
 		MessageID: fe.Tag(),
@@ -81,13 +80,12 @@ func (u *UTtrans) TranslateValidationError(
 }
 
 // Translate message with associated key , plurals define the plurals variable that determine more than one form
-func (u *UTtrans) TranslateMessage(c *fiber.Ctx,
+func (u *UTtrans) TranslateMessage(locale string,
 	key string,
 	para TranslateParam,
 	plurals interface{},
 ) string {
-	locale := c.Locals("locale")
-	localizer := i18n.NewLocalizer(u.bundle, locale.(string))
+	localizer := i18n.NewLocalizer(u.bundle, locale)
 	message, err := localizer.Localize(&i18n.LocalizeConfig{
 		MessageID:    key,
 		TemplateData: para,
@@ -101,7 +99,7 @@ func (u *UTtrans) TranslateMessage(c *fiber.Ctx,
 
 // Translate Validate Error when parsing request body to a more user friendly form or other lang depend on locale store on url query
 func (u *UTtrans) ValidateRequest(
-	c *fiber.Ctx,
+	locale string,
 	v *validator.Validate,
 	validateStruct interface{},
 ) []string {
@@ -111,7 +109,7 @@ func (u *UTtrans) ValidateRequest(
 
 	if validate_errs != nil {
 		for _, err := range validate_errs.(validator.ValidationErrors) {
-			err_msg := u.TranslateValidationError(c, err, nil)
+			err_msg := u.TranslateValidationError(locale, err, nil)
 			return_err = append(return_err, err_msg)
 
 		}

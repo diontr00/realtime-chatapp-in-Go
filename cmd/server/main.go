@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"{{{template}}}/api/route"
-	"{{{template}}}/config"
+	"realtime-chat/api/route"
+	"realtime-chat/config"
 )
 
 var (
@@ -29,5 +29,8 @@ func main() {
 		Translator: app_.Translator,
 		Fiber:      app_.Fiber,
 	})
+
+	app_.Fiber.Static("/", "./frontend/dist")
+
 	app_.Start()
 }

@@ -7,4 +7,5 @@
 [internal] 
   other = "Xin vui long thu lai sau"
 
-
+[ws]
+  other = "Khong the lien ket websocket"

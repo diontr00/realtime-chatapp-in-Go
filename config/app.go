@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
-	"{{{template}}}/translator"
+	"realtime-chat/translator"
 )
 
 type Applications struct {

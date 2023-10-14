@@ -2,21 +2,19 @@ package controller
 
 import (
 	"github.com/go-playground/validator"
-	"github.com/gofiber/fiber/v2"
-	"{{{template}}}/translator"
+	"realtime-chat/translator"
 )
 
-type Maincontroller struct {
-	Validator  *validator.Validate
-	Translator *translator.UTtrans
+type maincontroller struct {
+	validator  *validator.Validate
+	translator *translator.UTtrans
 }
 
-func (m *Maincontroller) Hello(c *fiber.Ctx) error {
+func NewMainController(v *validator.Validate, t *translator.UTtrans) *maincontroller {
 
-	message := m.Translator.TranslateMessage(c, "hello", nil, nil)
-
-	return c.JSON(fiber.Map{
-		"message": message,
-	})
+	return &maincontroller{
+		validator:  v,
+		translator: t,
+	}
 
 }

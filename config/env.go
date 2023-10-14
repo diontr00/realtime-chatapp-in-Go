@@ -24,8 +24,10 @@ type (
 	}
 
 	AppEnv struct {
-		Timeout    time.Duration `env:"TIMEOUT,default=2s"`
-		Production bool          `env:"PRODUCTION,default=false"`
+		Timeout      time.Duration `env:"TIMEOUT,default=2s"`
+		Production   bool          `env:"PRODUCTION,default=false"`
+		PongWait     time.Duration `env:"PONGWAIT,default=10s"`
+		PingInterval time.Duration
 	}
 
 	FiberEnv struct {
@@ -39,6 +41,9 @@ func newEnv(ctx context.Context) *Env {
 	if !env.App.Production {
 		fmt.Println("Running App in Development Env 🔥")
 	}
+
+	// Interval to send ping
+	env.App.PingInterval = (env.App.PongWait * 9) / 10
 
 	return env
 

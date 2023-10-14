@@ -7,4 +7,6 @@
 [internal] 
   other = "please try again"
 
+[ws] 
+  other = "Can't established ws connection"
 

@@ -14,8 +14,8 @@ def replace_template(file, template_name)
   # Read the file content
   content = File.read(file)
 
-  # Replace all occurrences of {{{template}}} with the provided template name
-  updated_content = content.gsub('{{{template}}}', template_name)
+  # Replace all occurrences of realtime-chat with the provided template name
+  updated_content = content.gsub('realtime-chat', template_name)
 
   # Write the updated content back to the file
   File.open(file, 'w') { |f| f.write(updated_content) }

@@ -3,12 +3,14 @@ package route
 import (
 	"time"
 
+	"realtime-chat/api/controller"
+	"realtime-chat/api/middleware"
+	"realtime-chat/config"
+	"realtime-chat/translator"
+
 	"github.com/go-playground/validator"
+	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
-	"{{{template}}}/api/controller"
-	"{{{template}}}/api/middleware"
-	"{{{template}}}/config"
-	"{{{template}}}/translator"
 )
 
 type RouteConfig struct {
@@ -21,10 +23,25 @@ type RouteConfig struct {
 
 func Setup(config *RouteConfig) {
 
-	main_controller := &controller.Maincontroller{
-		Validator:  config.Validator,
-		Translator: config.Translator,
-	}
+	// main_controller := controller.NewMainController(config.Validator, config.Translator)
+
+	ws_controller := controller.NewSocketController(config.Translator, config.Env.App.PongWait, config.Env.App.PingInterval)
+
+	// Middleware
 	config.Fiber.Use(middleware.NewLocaleMiddleWare)
-	config.Fiber.Get("/", main_controller.Hello)
+	config.Fiber.Use(middleware.NewRecoverMiddleWare(config.Translator))
+	config.Fiber.Use("/ws", middleware.Newwsmiddleware)
+
+	// Route
+
+	config.Fiber.Static("/", "./frontend/dist")
+
+	config.Fiber.Get("/ws", websocket.New(ws_controller.Serve, websocket.Config{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		Origins:         []string{"http://localhost:8080"},
+	}))
+
+	config.Fiber.All("*", middleware.NewCatchAllMiddleWare(config.Translator))
+
 }
