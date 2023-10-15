@@ -7,6 +7,9 @@
 [internal] 
   other = "please try again"
 
+[required]
+  other = "{{.Field}} is a required field"
+
 [ws] 
   other = "Can't established ws connection"
 

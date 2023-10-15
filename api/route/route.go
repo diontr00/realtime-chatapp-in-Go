@@ -1,6 +1,7 @@
 package route
 
 import (
+	"context"
 	"time"
 
 	"realtime-chat/api/controller"
@@ -21,11 +22,11 @@ type RouteConfig struct {
 	Translator *translator.UTtrans
 }
 
-func Setup(config *RouteConfig) {
+func Setup(ctx context.Context, config *RouteConfig) {
 
 	// main_controller := controller.NewMainController(config.Validator, config.Translator)
 
-	ws_controller := controller.NewSocketController(config.Translator, config.Env.App.PongWait, config.Env.App.PingInterval)
+	ws_controller := controller.NewSocketController(ctx, config.Translator, config.Validator, config.Env.Socket)
 
 	// Middleware
 	config.Fiber.Use(middleware.NewLocaleMiddleWare)
@@ -39,8 +40,10 @@ func Setup(config *RouteConfig) {
 	config.Fiber.Get("/ws", websocket.New(ws_controller.Serve, websocket.Config{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
-		Origins:         []string{"http://localhost:8080"},
+		Origins:         []string{"https://localhost:8080"},
 	}))
+
+	config.Fiber.Post("/login", ws_controller.LoginHandler)
 
 	config.Fiber.All("*", middleware.NewCatchAllMiddleWare(config.Translator))
 

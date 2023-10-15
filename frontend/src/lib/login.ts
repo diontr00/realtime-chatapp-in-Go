@@ -5,6 +5,7 @@ export enum status {
   authorized = "authorized",
   unauthorized = "unauthorized",
   wrongpassword = "wrongpassword",
+  badrequest = "badrequest",
 }
 
 let store = writable(status.unauthorized);
@@ -20,25 +21,35 @@ export function login(username: string, password: string) {
       password: password,
     }),
     mode: "cors",
+    headers: { "Content-Type": "application/json" },
   })
     .then((response) => {
       if (response.ok) {
         return response.json();
       } else {
+        console.log(response.json());
+        if (response.status === 400) {
+          throw "bad request";
+        }
         throw "unauthorized";
       }
     })
     .then((data) => {
+      connectWebSocket(data.otp.Key);
+
       store.set(status.authorized);
-      connectWebSocket(data.otp);
     })
     .catch((e) => {
+      if (e === "bad request") {
+        store.set(status.badrequest);
+        return;
+      }
       store.set(status.wrongpassword);
     });
 }
 
 function connectWebSocket(otp: string) {
   conn = new Event.Connection(
-    new WebSocket("ws://" + document.location.host + "/ws?otp=" + otp)
+    new WebSocket("wss://" + document.location.host + "/ws?otp=" + otp)
   );
 }

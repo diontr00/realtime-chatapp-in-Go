@@ -7,5 +7,8 @@
 [internal] 
   other = "Xin vui long thu lai sau"
 
+[required]
+  other = "{{.Field}} là trường bắt buộc."
+
 [ws]
   other = "Khong the lien ket websocket"

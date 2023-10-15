@@ -19,14 +19,19 @@ var dotenvFS embed.FS
 
 type (
 	Env struct {
-		App   AppEnv
-		Fiber FiberEnv
+		App    AppEnv
+		Socket SocketEnv
+		Fiber  FiberEnv
 	}
 
 	AppEnv struct {
-		Timeout      time.Duration `env:"TIMEOUT,default=2s"`
-		Production   bool          `env:"PRODUCTION,default=false"`
+		Timeout    time.Duration `env:"TIMEOUT,default=2s"`
+		Production bool          `env:"PRODUCTION,default=false"`
+	}
+
+	SocketEnv struct {
 		PongWait     time.Duration `env:"PONGWAIT,default=10s"`
+		OtpRetention time.Duration `env:"OTPRETENTION,default=5s"`
 		PingInterval time.Duration
 	}
 
@@ -43,7 +48,7 @@ func newEnv(ctx context.Context) *Env {
 	}
 
 	// Interval to send ping
-	env.App.PingInterval = (env.App.PongWait * 9) / 10
+	env.Socket.PingInterval = (env.Socket.PongWait * 9) / 10
 
 	return env
 

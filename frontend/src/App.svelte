@@ -1,16 +1,16 @@
 <script lang="ts">
   import * as Event from "./lib/Messages";
-  import { errors } from "./lib/Messages";
+  import { errors, closed } from "./lib/Messages";
   import { auth } from "./lib/login";
   import * as login from "./lib/login";
   import Login from "./component/login.svelte";
 
   let selectedRoom = "";
   let chatroom = "";
-  let message = "";
+  let outmessage = "";
 
-  const byteSize = (str) => new Blob([str]).size;
-  $: invalid = byteSize(message) > 512 ? true : false;
+  const byteSize = (str: string) => new Blob([str]).size;
+  $: invalid = byteSize(outmessage) > 512 ? true : false;
 
   let conn: Event.Connection;
 
@@ -24,16 +24,19 @@
       return;
     }
 
-    if (message != "") {
-      conn.sendEvent(Event.messageType.sendMessage, message);
+    if (outmessage != "") {
+      conn.sendEvent(Event.messageType.sendMessage, outmessage);
     }
-    message = "";
+    outmessage = "";
   }
 </script>
 
-{#if $auth === login.status.unauthorized}
+{#if $auth !== login.status.authorized}
   <Login />
 {:else}
+  {#if $closed}
+    <h1 style="color:red">Connection have been closed</h1>
+  {/if}
   <main>
     <h1>Chat Application</h1>
 
@@ -63,28 +66,28 @@
         placeholder="Welcome to the {chatroom} chatroom, messages from other will appear here"
       />
     {:else}
-      <h2>Change chatroom to receive message</h2>
+      <h2>Change chatroom to receive outmessage</h2>
     {/if}
     <h3>Input Message:</h3>
 
-    <!-- Form use to send message -->
+    <!-- Form use to send outmessage -->
     <form id="chatroom-message">
-      <label for="message">Message:</label>
+      <label for="outmessage">Message:</label>
 
       <h3 class={invalid ? "invalid" : "valid"} style="color: red;">
         unexpected Error: {$errors}
       </h3>
       <input
-        bind:value={message}
+        bind:value={outmessage}
         type="text"
-        id="message"
-        name="message"
+        id="outmessage"
+        name="outmessage"
         on:keydown={() => {
           if (!invalid) {
             $errors = "";
             return;
           }
-          $errors = "message too long";
+          $errors = "outmessage too long";
         }}
         class={invalid ? "invalid" : ""}
       />

@@ -37,9 +37,6 @@
         class={$auth === login.status.wrongpassword ? "wrongpassword" : ""}
       />
 
-      {#if $auth === login.status.wrongpassword}
-        <p style="color:red">Wrong password</p>
-      {/if}
       <br /><br />
       <input
         type="submit"
@@ -49,6 +46,14 @@
           login.login(username, password);
         }}
       />
+
+      {#if $auth === login.status.wrongpassword}
+        <p style="color:red ; margin-bottom:  0px;">Wrong password</p>
+      {/if}
+
+      {#if $auth === login.status.badrequest}
+        <p style="color:red ; margin-bottom:  0px;">Try again later</p>
+      {/if}
     </form>
   </div>
 {:else}

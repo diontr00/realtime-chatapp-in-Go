@@ -7,10 +7,12 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"time"
+
+	"realtime-chat/translator"
 
 	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
-	"realtime-chat/translator"
 )
 
 type Applications struct {
@@ -30,11 +32,13 @@ func (a *Applications) Start() {
 		log.Fatal(a.Fiber.Shutdown())
 	}()
 
-	log.Fatal(a.Fiber.Listen(a.Env.Fiber.ListenPort))
+	log.Fatal(a.Fiber.ListenTLS(a.Env.Fiber.ListenPort, "./cert/localhost.cert", "./cert/localhost.key"))
 }
 
 func NewApp(ctx context.Context) *Applications {
 
+	ctx, cancel := context.WithTimeout(ctx, time.Second*2)
+	defer cancel()
 	env := newEnv(ctx)
 	server := newFiber(env.Fiber)
 	trans := newTranslator()

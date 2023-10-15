@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"sync"
-	"time"
 
 	"realtime-chat/api/route"
 	"realtime-chat/config"
@@ -15,14 +14,15 @@ var (
 )
 
 func main() {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	ctx, cancel := context.WithCancel(context.Background())
+
 	defer cancel()
 
 	appOnce.Do(func() {
 		app_ = config.NewApp(ctx)
 	})
 
-	route.Setup(&route.RouteConfig{
+	route.Setup(ctx, &route.RouteConfig{
 		Env:        app_.Env,
 		Timeout:    app_.Env.App.Timeout,
 		Validator:  app_.Validator,

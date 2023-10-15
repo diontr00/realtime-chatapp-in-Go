@@ -1,10 +1,13 @@
+make-cert: ## Create Certificate
+	@ruby ./script/genCert.rb
+
 build-fe: ## Build frontend
 	@cd frontend && yarn build 
 
 build-be:   ## Build backend 
 	@go build  -o bin/main cmd/server/main.go
 
-run:  build-fe build-be ## Run 
+run:  make-cert build-fe build-be ## Run 
 	@./bin/main
 
 template: 

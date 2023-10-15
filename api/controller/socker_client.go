@@ -30,7 +30,7 @@ func (s *socketClient) readMessages() {
 	s.connection.SetReadLimit(512)
 
 	// the initail deadline timer
-	if err := s.connection.SetReadDeadline(time.Now().Add(s.controller.pongWait)); err != nil {
+	if err := s.connection.SetReadDeadline(time.Now().Add(s.controller.env.PongWait)); err != nil {
 		log.Println("Initial deadline breach", err)
 		return
 	}
@@ -76,7 +76,7 @@ func (s *socketClient) readMessages() {
 // Write messages
 func (s *socketClient) writeMessages() {
 
-	ticker := time.NewTicker(s.controller.pingInterval)
+	ticker := time.NewTicker(s.controller.env.PingInterval)
 
 	defer func() {
 		ticker.Stop()
@@ -121,6 +121,8 @@ func (s *socketClient) writeError(err error) error {
 	payload := model.Event{Type: model.ErrorMessageEvent, Payload: json.RawMessage(err.Error())}
 	b, err := json.Marshal(&payload)
 	if err != nil {
+
+		log.Println("Marshal error", err)
 		return err
 	}
 
@@ -135,7 +137,7 @@ func (s *socketClient) writeError(err error) error {
 // Pong message handler , by continute set the deadline of message
 func (s *socketClient) pongHandler(msg string) error {
 	log.Println("pong")
-	return s.connection.SetReadDeadline(time.Now().Add(s.controller.pongWait))
+	return s.connection.SetReadDeadline(time.Now().Add(s.controller.env.PongWait))
 }
 
 // Return the new socket client of the given manager and underlying connection

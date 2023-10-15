@@ -1,5 +1,8 @@
-import { writable } from "svelte/store";
+import { writable, readonly } from "svelte/store";
 export const errors = writable("");
+
+const closedw = writable(true);
+export const closed = readonly(closedw);
 
 export function setError(str: string) {
   errors.set(str);
@@ -25,11 +28,18 @@ export class Connection {
   conn: WebSocket;
   constructor(conn: WebSocket) {
     this.conn = conn;
+    closedw.set(false);
+
     let self = this;
+
     conn.onmessage = function(event: MessageEvent) {
       const eventData = JSON.parse(event.data);
       const incoming = new Event(messageType.newMessage, eventData);
       self.routeEvent(incoming);
+    };
+
+    conn.onclose = function(event: CloseEvent) {
+      closedw.set(true);
     };
   }
 
