@@ -94,13 +94,8 @@ func (s *socketClient) writeMessages() {
 				return
 
 			}
-			data, err := json.Marshal(message)
-			if err != nil {
-				log.Println(err)
-				return
-			}
 
-			if err := s.connection.WriteMessage(websocket.TextMessage, data); err != nil {
+			if err := s.connection.WriteMessage(websocket.TextMessage, message); err != nil {
 				log.Println(err)
 			}
 			log.Println("sent message")
@@ -136,7 +131,6 @@ func (s *socketClient) writeError(err error) error {
 
 // Pong message handler , by continute set the deadline of message
 func (s *socketClient) pongHandler(msg string) error {
-	log.Println("pong")
 	return s.connection.SetReadDeadline(time.Now().Add(s.controller.env.PongWait))
 }
 

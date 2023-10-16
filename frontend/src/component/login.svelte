@@ -34,24 +34,28 @@
         id="password"
         name="password"
         bind:value={password}
-        class={$auth === login.status.wrongpassword ? "wrongpassword" : ""}
+        class={$auth.status === login.status.wrongpassword
+          ? "wrongpassword"
+          : ""}
       />
 
       <br /><br />
       <input
         type="submit"
         value="Login"
-        class={$auth === login.status.wrongpassword ? "wrongpassword" : ""}
-        on:click|preventDefault={(e) => {
+        class={$auth.status === login.status.wrongpassword
+          ? "wrongpassword"
+          : ""}
+        on:click|preventDefault={() => {
           login.login(username, password);
         }}
       />
 
-      {#if $auth === login.status.wrongpassword}
+      {#if $auth.status === login.status.wrongpassword}
         <p style="color:red ; margin-bottom:  0px;">Wrong password</p>
       {/if}
 
-      {#if $auth === login.status.badrequest}
+      {#if $auth.status === login.status.badrequest}
         <p style="color:red ; margin-bottom:  0px;">Try again later</p>
       {/if}
     </form>

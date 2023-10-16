@@ -1,8 +1,21 @@
-import { writable, readonly } from "svelte/store";
+import { readable, writable, readonly } from "svelte/store";
+import * as message from "../model/message";
 export const errors = writable("");
 
 const closedw = writable(true);
 export const closed = readonly(closedw);
+
+let messages = writable<message.Message[]>([]);
+
+export let incomingMessage = readonly(messages);
+
+function appendMessage(message: message.Message) {
+  messages.update((msgs) => (msgs = [...msgs, message]));
+}
+
+export function clearMessage() {
+  messages.set([]);
+}
 
 export function setError(str: string) {
   errors.set(str);
@@ -38,22 +51,22 @@ export class Connection {
       self.routeEvent(incoming);
     };
 
-    conn.onclose = function(event: CloseEvent) {
+    conn.onclose = function() {
       closedw.set(true);
     };
   }
 
   // type --  the name of the event to send
   // payload -- the data payload
-  sendEvent(type: messageType, payload: any): void {
+  sendEvent(type: messageType, payload: message.Message): void {
     const event = new Event(type, payload);
-    this.conn.send(JSON.stringify(event));
-
-    const byteSize = (str) => new Blob([str]).size;
-    if (byteSize(payload) > 512) {
+    const byteSize = (str: string) => new Blob([str]).size;
+    if (byteSize(payload.message) > 512) {
       errors.set("Message is too long");
       return;
     }
+    this.conn.send(JSON.stringify(event));
+
     this.routeEvent(event);
   }
 
@@ -65,6 +78,7 @@ export class Connection {
     }
     switch (event.type) {
       case messageType.newMessage:
+        appendMessage(event.payload);
         console.log("new_message", event.payload);
         break;
       case messageType.sendMessage:

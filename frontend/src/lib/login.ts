@@ -8,9 +8,17 @@ export enum status {
   badrequest = "badrequest",
 }
 
-let store = writable(status.unauthorized);
+export interface auth_info {
+  status: status;
+  user: string;
+}
 
-export const auth = readonly(store);
+let store = writable<auth_info>({
+  user: "",
+  status: status.unauthorized,
+});
+
+export const auth = readonly<auth_info>(store);
 
 export let conn: Event.Connection;
 export function login(username: string, password: string) {
@@ -27,7 +35,6 @@ export function login(username: string, password: string) {
       if (response.ok) {
         return response.json();
       } else {
-        console.log(response.json());
         if (response.status === 400) {
           throw "bad request";
         }
@@ -37,14 +44,14 @@ export function login(username: string, password: string) {
     .then((data) => {
       connectWebSocket(data.otp.Key);
 
-      store.set(status.authorized);
+      store.set({ status: status.authorized, user: username });
     })
     .catch((e) => {
       if (e === "bad request") {
-        store.set(status.badrequest);
+        store.set({ status: status.badrequest, user: "" });
         return;
       }
-      store.set(status.wrongpassword);
+      store.set({ status: status.wrongpassword, user: "" });
     });
 }
 

@@ -46,7 +46,6 @@ func (s *socketController) Serve(c *websocket.Conn) {
 	}
 
 	otp := c.Query("otp")
-	fmt.Println(otp)
 	if otp == "" || !s.otps.VerifyOTP(otp) {
 		payload := model.Event{Type: model.ErrorMessageEvent, Payload: json.RawMessage("unauthorized")}
 
@@ -95,10 +94,7 @@ func (s *socketController) removeClient(client *socketClient) {
 
 // set up all the available event handlers
 func (s *socketController) setupEventHandlers() {
-	s.handlers[model.SendMessageEvent] = func(e model.Event, c *socketClient) error {
-		log.Println(e)
-		return nil
-	}
+	s.handlers[model.SendMessageEvent] = broadCast
 
 }
 
@@ -115,6 +111,7 @@ func (s *socketController) routeEvent(event model.Event, c *socketClient) error 
 
 }
 
+// Authentication Handler
 func (s *socketController) LoginHandler(c *fiber.Ctx) error {
 	var req model.UserLoginRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -127,7 +124,6 @@ func (s *socketController) LoginHandler(c *fiber.Ctx) error {
 	}
 	locale := c.Locals("locale").(string)
 
-	fmt.Println(req)
 	if err := s.translator.ValidateRequest(locale, s.validator, &req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(model.UserLoginResponse{
 			Status: "Bad Request",

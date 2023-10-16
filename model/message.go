@@ -18,6 +18,8 @@ const (
 
 // The payload sent in the SendMessageEvent
 type SendMessagePayload struct {
-	Message string `json:"message"`
-	From    string `json:"from"`
+	Room      string `json:"room"`
+	User      string `json:"user"`
+	Message   string `json:"message"`
+	CreatedAt string `json:"createdAt"`
 }

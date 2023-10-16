@@ -1,37 +1,96 @@
 <script lang="ts">
   import * as Event from "./lib/Messages";
-  import { errors, closed } from "./lib/Messages";
+  import {
+    errors,
+    closed,
+    incomingMessage,
+    clearMessage,
+  } from "./lib/Messages";
   import { auth } from "./lib/login";
   import * as login from "./lib/login";
   import Login from "./component/login.svelte";
+  import { NewMessage } from "./model/message";
+  import { conn } from "./lib/login";
 
   let selectedRoom = "";
   let chatroom = "";
   let outmessage = "";
+  let inmessage = "";
+  let textArea: HTMLElement;
+
+  let invalid: boolean = false;
+
+  function checkByteSize() {
+    invalid = byteSize(outmessage) > 512 ? true : false;
+
+    if (invalid && $errors === "") {
+      $errors = "outmessage too long";
+    }
+    if (!invalid && $errors === "outmessage too long") {
+      $errors = "";
+    }
+  }
+
+  function checkRoom(): boolean {
+    invalid = chatroom === "" ? true : false;
+
+    if (invalid && $errors === "") {
+      $errors = "room missing";
+      return false;
+    }
+
+    if (!invalid) {
+      return true;
+    }
+  }
 
   const byteSize = (str: string) => new Blob([str]).size;
-  $: invalid = byteSize(outmessage) > 512 ? true : false;
-
-  let conn: Event.Connection;
 
   function changeChatRoom() {
+    if ($errors === "room missing") {
+      $errors = "";
+    }
     chatroom = selectedRoom;
-    console.log(chatroom);
   }
 
   function sendMessage() {
     if (invalid) {
       return;
     }
+    if (!checkRoom()) {
+      return;
+    }
 
     if (outmessage != "") {
-      conn.sendEvent(Event.messageType.sendMessage, outmessage);
+      let message = NewMessage(chatroom, $auth.user, outmessage);
+
+      conn.sendEvent(Event.messageType.sendMessage, message);
+
+      outmessage = "";
     }
-    outmessage = "";
+  }
+
+  $: if ($incomingMessage.length > 0) {
+    textArea = document.getElementById("chatmessages");
+
+    if (textArea !== null) {
+      for (let message of $incomingMessage) {
+        if (message.room === chatroom) {
+          const formattedMsg = `${message.user}: ${message.message}`;
+          inmessage += formattedMsg + "\n";
+        }
+      }
+      textArea.innerHTML = textArea.innerHTML + "\n" + inmessage;
+      clearMessage();
+    }
   }
 </script>
 
-{#if $auth !== login.status.authorized}
+{#if $errors}
+  <h3 style="color:red">{$errors}</h3>
+{/if}
+
+{#if $auth.status !== login.status.authorized}
   <Login />
 {:else}
   {#if $closed}
@@ -57,6 +116,7 @@
 
     {#if chatroom !== ""}
       <textarea
+        bind:this={textArea}
         class="messagearea"
         name="chatmessages"
         id="chatmessages"
@@ -74,21 +134,12 @@
     <form id="chatroom-message">
       <label for="outmessage">Message:</label>
 
-      <h3 class={invalid ? "invalid" : "valid"} style="color: red;">
-        unexpected Error: {$errors}
-      </h3>
       <input
         bind:value={outmessage}
         type="text"
         id="outmessage"
         name="outmessage"
-        on:keydown={() => {
-          if (!invalid) {
-            $errors = "";
-            return;
-          }
-          $errors = "outmessage too long";
-        }}
+        on:keydown={checkByteSize}
         class={invalid ? "invalid" : ""}
       />
       <br /><br />
